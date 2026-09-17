@@ -1,0 +1,4 @@
+kazenai-core
+langgraph
+pydantic>=2.0
+python-dotenv

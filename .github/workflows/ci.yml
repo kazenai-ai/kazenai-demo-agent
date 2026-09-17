@@ -1,0 +1,35 @@
+name: ci
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install hermetic deps (vendored; no live LLM APIs)
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          pip install ./vendor/kazen_event_schema-0.6.0-py3-none-any.whl
+          pip install ./vendor/kazenai_contracts-0.1.0-py3-none-any.whl
+          pip install ./vendor/kazenai-1.0.1-py3-none-any.whl
+          pip install "pytest>=7" "pydantic>=2.0" python-dotenv
+
+      - name: Run scenario tests
+        env:
+          OPENAI_API_KEY: ""
+          ANTHROPIC_API_KEY: ""
+          PYTHONPATH: .
+        run: |
+          set -euo pipefail
+          unset OPENAI_API_KEY ANTHROPIC_API_KEY || true
+          pytest scenarios -q
