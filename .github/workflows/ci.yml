@@ -15,14 +15,16 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install hermetic deps (vendored; no live LLM APIs)
+      - name: Install hermetic deps (PyPI; vendored fallback)
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          pip install ./vendor/kazen_event_schema-0.6.0-py3-none-any.whl
-          pip install ./vendor/kazenai_contracts-0.1.0-py3-none-any.whl
-          pip install ./vendor/kazenai-1.0.1-py3-none-any.whl
-          pip install "pytest>=7" "pydantic>=2.0" python-dotenv
+          if [[ -f ./vendor/kazenai-1.0.1-py3-none-any.whl ]]; then
+            pip install ./vendor/kazen_event_schema-0.6.0-py3-none-any.whl || true
+            pip install ./vendor/kazenai_contracts-0.1.0-py3-none-any.whl || true
+            pip install ./vendor/kazenai-1.0.1-py3-none-any.whl
+          fi
+          pip install -r requirements.txt
 
       - name: Run scenario tests
         env:
@@ -33,3 +35,6 @@ jobs:
           set -euo pipefail
           unset OPENAI_API_KEY ANTHROPIC_API_KEY || true
           pytest scenarios -q
+          python examples/02_monitor_fake_provider.py
+          python examples/03_monitor_multisink_hosted.py | tee /tmp/hosted-refuse.json || true
+          grep -q 'KAZENAI_DEMO_HOSTED' /tmp/hosted-refuse.json

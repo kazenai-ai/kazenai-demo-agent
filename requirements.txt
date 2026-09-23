@@ -1,4 +1,7 @@
-kazenai-core
-langgraph
+kazenai==1.0.1
+kazen-event-schema==0.6.0
 pydantic>=2.0
 python-dotenv
+pytest>=7.0
+# Optional for live OpenAI examples (not required for hermetic CI):
+# openai>=1.0
