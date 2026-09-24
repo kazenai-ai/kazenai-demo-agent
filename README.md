@@ -18,7 +18,7 @@ pip install -U pip
 pip install -r requirements.txt
 ```
 
-Public packages: `kazenai==1.0.1`, `kazen-event-schema==0.6.0`.
+Public packages: `kazenai==1.0.2`, `kazen-event-schema==0.6.1`.
 
 Optional env:
 
