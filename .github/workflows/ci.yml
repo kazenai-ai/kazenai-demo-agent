@@ -19,10 +19,10 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --upgrade pip
-          if [[ -f ./vendor/kazenai-1.0.2-py3-none-any.whl ]]; then
-            pip install ./vendor/kazen_event_schema-0.6.1-py3-none-any.whl || true
+          if [[ -f ./vendor/kazenai-1.0.3-py3-none-any.whl ]]; then
+            pip install ./vendor/kazen_event_schema-0.6.2-py3-none-any.whl || true
             pip install ./vendor/kazenai_contracts-0.1.0-py3-none-any.whl || true
-            pip install ./vendor/kazenai-1.0.2-py3-none-any.whl
+            pip install ./vendor/kazenai-1.0.3-py3-none-any.whl
           fi
           pip install -r requirements.txt
 
