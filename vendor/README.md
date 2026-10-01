@@ -1,17 +1,15 @@
-# Vendored wheels (CI)
+# Vendor directory
 
-Pinned public packages for hermetic CI (also installable from PyPI).
+This public demo installs dependencies from **PyPI** via `requirements.txt`.
 
-| Wheel | Purpose |
-|-------|---------|
-| `kazen_event_schema-0.6.2-py3-none-any.whl` | Event schema (`pip install kazen-event-schema==0.6.2`) |
-| `kazenai-1.0.3-py3-none-any.whl` | Core SDK (`pip install kazenai==1.0.3`) |
-| `kazenai_finops-1.0.2-py3-none-any.whl` | FinOps SDK (`pip install kazenai-finops==1.0.2`) |
-| `kazenai_contracts-0.1.0-py3-none-any.whl` | Contracts (not on PyPI) |
-
-Refresh:
+Tracked offline wheels were removed so the standalone clone path cannot drift
+behind published package versions or ship unexplained binaries.
 
 ```bash
-pip download --no-deps -d vendor kazenai==1.0.3 kazen-event-schema==0.6.2 kazenai-finops==1.0.2
-# contracts still from sibling build under ../kazenai-contracts
+python -m pip install -r requirements.txt
 ```
+
+If you need a hermetic offline mirror for your own environment, download current
+certified public artifacts yourself and record SHA-256 hashes, licenses, and
+upstream URLs before redistributing them. Do not commit unreviewed wheels here
+without an explicit offline-install workflow and provenance notes.

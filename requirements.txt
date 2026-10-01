@@ -1,5 +1,5 @@
-kazenai==1.0.2
-kazen-event-schema==0.6.1
+kazenai==1.0.5
+kazen-event-schema==0.6.3
 pydantic>=2.0
 python-dotenv
 pytest>=7.0

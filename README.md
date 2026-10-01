@@ -5,20 +5,29 @@ Small, runnable demos for KazenAI **Control** budget and loop enforcement.
 **Label honesty:** Hermetic examples use a fake provider. Hosted MultiSink is personal
 HOSTED_DEMO only — not company staging certification, not production savings.
 
-For the full D2–D7 admit/deny/tool-fail/corrected + Lens regression path, use
-[`kazenai-examples/control-loop-and-failure`](../kazenai-examples/control-loop-and-failure/)
-(see its `HOSTED_DEMO.md`).
+This repository is self-contained. Clone it alone, install from PyPI, and run the
+hermetic path below. No sibling KazenAI checkout is required.
+
+Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/)
+(after `docs.kazenai.com` is live). Until then, use the SDK examples in this repo.
 
 ## Install (PyPI)
 
 ```bash
+git clone https://github.com/kazenai-ai/kazenai-demo-agent.git
 cd kazenai-demo-agent
 python3.11 -m venv .venv && source .venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
+python -m pip install -U pip
+python -m pip install -r requirements.txt
 ```
 
-Public packages: `kazenai==1.0.2`, `kazen-event-schema==0.6.1`.
+Public package pins (reproducible demo):
+
+- `kazenai==1.0.5`
+- `kazen-event-schema==0.6.3`
+
+Dependencies install from public PyPI. This demo does **not** ship offline vendor
+wheels.
 
 Optional env:
 
@@ -30,7 +39,7 @@ export KAZENAI_DEMO_BUDGET_USD="0.25"
 ## Hermetic scenarios (CI)
 
 ```bash
-pytest scenarios -q
+python -m pytest scenarios -q
 ```
 
 - `BudgetExceeded` before a high-token task can run past the configured budget.
@@ -40,6 +49,16 @@ Also:
 
 ```bash
 python main.py
+```
+
+## Smoke: pre-dispatch denial (no provider keys)
+
+Proves a tiny budget causes **zero** fake-provider calls:
+
+```bash
+python -m examples.02_monitor_fake_provider
+# or:
+python examples/02_monitor_fake_provider.py
 ```
 
 ## SDK examples
@@ -64,7 +83,7 @@ python examples/01_local_enforcement.py
 python examples/02_monitor_fake_provider.py
 python examples/04_capture_metadata_default.py
 
-# Hosted only (after staging URLs + API key):
+# Hosted only (after staging URLs + API key; never commit credentials):
 export KAZENAI_DEMO_HOSTED=1
 export KAZENAI_FINOPS_URL=https://finops.staging.kazenai.com
 export KAZENAI_FINOPS_API_KEY=...
@@ -73,4 +92,13 @@ export KAZENAI_WORKSPACE_ID=...
 python examples/03_monitor_multisink_hosted.py
 ```
 
-CI runs **pytest scenarios only**. Hosted example 03 refuses without the gate and is not enabled in PR CI.
+CI runs **pytest scenarios** plus the hermetic monitor smoke. Hosted example 03
+refuses without `KAZENAI_DEMO_HOSTED=1` and is not enabled for live network calls
+in PR CI.
+
+## Supported surfaces (demo scope)
+
+| Path | Status |
+|------|--------|
+| Sync OpenAI `chat.completions.create` (non-streaming) via `monitor()` | Supported |
+| Streaming / async / Responses / Realtime | Unsupported in this demo |
