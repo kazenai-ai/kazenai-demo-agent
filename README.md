@@ -22,7 +22,7 @@ python -m pip install -r requirements.txt
 
 Public package pins (reproducible demo):
 
-- `kazenai==1.0.5`
+- `kazenai==1.1.0`
 - `kazen-event-schema==0.6.3`
 
 Dependencies install from public PyPI. This demo does **not** ship offline vendor
