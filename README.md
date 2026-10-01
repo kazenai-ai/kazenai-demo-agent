@@ -8,8 +8,7 @@ HOSTED_DEMO only — not company staging certification, not production savings.
 This repository is self-contained. Clone it alone, install from PyPI, and run the
 hermetic path below. No sibling KazenAI checkout is required.
 
-Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/)
-(after `docs.kazenai.com` is live). Until then, use the SDK examples in this repo.
+Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/).
 
 ## Install (PyPI)
 
