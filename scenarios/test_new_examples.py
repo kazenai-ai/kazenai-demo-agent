@@ -1,4 +1,4 @@
-"""Regression checks for FINAL POLISH public examples 05–07."""
+"""Regression checks for FINAL POLISH public examples 05–13."""
 
 from __future__ import annotations
 
@@ -29,3 +29,27 @@ def test_example_06_streaming_lifecycle() -> None:
 
 def test_example_07_concurrent_reservation() -> None:
     _run("07_concurrent_reservation.py")
+
+
+def test_example_08_agent_runaway_then_deny() -> None:
+    _run("08_agent_runaway_then_deny.py")
+
+
+def test_example_09_agent_fanout_budget_deny() -> None:
+    _run("09_agent_fanout_budget_deny.py")
+
+
+def test_example_10_sequential_multi_agent_workflow() -> None:
+    _run("10_sequential_multi_agent_workflow.py")
+
+
+def test_example_11_fail_closed_vs_fail_open() -> None:
+    _run("11_fail_closed_vs_fail_open.py")
+
+
+def test_example_12_anthropic_messages_monitor() -> None:
+    _run("12_anthropic_messages_monitor.py")
+
+
+def test_example_13_soft_pause_vs_hard_budget_deny() -> None:
+    _run("13_soft_pause_vs_hard_budget_deny.py")

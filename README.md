@@ -69,6 +69,12 @@ python main.py
 | `examples/05_customer_feature_attribution.py` | Two customers, one feature, retry cost difference | hermetic fake + local timeline |
 | `examples/06_streaming_lifecycle.py` | Sync stream settle vs early-close pending | hermetic fake stream |
 | `examples/07_concurrent_reservation.py` | Workers race local reservation authority | local process fixture |
+| `examples/08_agent_runaway_then_deny.py` | Multi-step agent plans many calls; budget stops after one | hermetic fake |
+| `examples/09_agent_fanout_budget_deny.py` | Parent fans out subagents; siblings denied while one holds | local process fixture |
+| `examples/10_sequential_multi_agent_workflow.py` | Triage → research → reply; shared budget stops later stage | hermetic fake |
+| `examples/11_fail_closed_vs_fail_open.py` | Fail-closed / fail-open / unknown-model block postures | hermetic config |
+| `examples/12_anthropic_messages_monitor.py` | Anthropic-shaped `messages.create` via `monitor()` | hermetic fake |
+| `examples/13_soft_pause_vs_hard_budget_deny.py` | Soft `KazenCircuitBreaker` vs hard `BudgetExceeded` | hermetic fake |
 | `examples/01_local_enforcement.py` | `Enforcement.check_local()` via researcher agent | hermetic |
 | `examples/04_capture_metadata_default.py` | Metadata-default capture (bodies omitted) | hermetic |
 | `examples/03_monitor_multisink_hosted.py` | HttpSink → staging FinOps | hosted opt-in only |
@@ -78,6 +84,12 @@ python examples/02_monitor_fake_provider.py
 python examples/05_customer_feature_attribution.py
 python examples/06_streaming_lifecycle.py
 python examples/07_concurrent_reservation.py
+python examples/08_agent_runaway_then_deny.py
+python examples/09_agent_fanout_budget_deny.py
+python examples/10_sequential_multi_agent_workflow.py
+python examples/11_fail_closed_vs_fail_open.py
+python examples/12_anthropic_messages_monitor.py
+python examples/13_soft_pause_vs_hard_budget_deny.py
 python examples/01_local_enforcement.py
 python examples/04_capture_metadata_default.py
 
