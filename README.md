@@ -8,9 +8,12 @@ HOSTED_DEMO only — not company staging certification, not production savings.
 This repository is self-contained. Clone it alone, install from PyPI, and run the
 hermetic path below. No sibling KazenAI checkout is required.
 
-Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/).
+Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/) ·
+Core: [kazenai](https://pypi.org/project/kazenai/) ·
+FinOps: [kazenai-finops](https://pypi.org/project/kazenai-finops/) ·
+Product: [kazenai.com](https://kazenai.com)
 
-## Install (PyPI)
+## 60-second path (no keys)
 
 ```bash
 git clone https://github.com/kazenai-ai/kazenai-demo-agent.git
@@ -18,15 +21,26 @@ cd kazenai-demo-agent
 python3.11 -m venv .venv && source .venv/bin/activate
 python -m pip install -U pip
 python -m pip install -r requirements.txt
+python examples/02_monitor_fake_provider.py
 ```
+
+Expected: `BudgetExceeded` with `provider_calls: 0`.
+
+## Install (PyPI)
 
 Public package pins (reproducible demo):
 
-- `kazenai==1.1.0`
+- `kazenai==1.1.1`
 - `kazen-event-schema==0.6.3`
 
 Dependencies install from public PyPI. This demo does **not** ship offline vendor
-wheels.
+wheels. Prefer bounded provider extras when installing the customer SDK elsewhere:
+
+```bash
+python -m pip install "kazenai-finops[openai]==1.1.1"
+```
+
+Report issues: [github.com/kazenai-ai/kazenai-demo-agent/issues](https://github.com/kazenai-ai/kazenai-demo-agent/issues)
 
 Optional env:
 
@@ -41,45 +55,30 @@ export KAZENAI_DEMO_BUDGET_USD="0.25"
 python -m pytest scenarios -q
 ```
 
-- `BudgetExceeded` before a high-token task can run past the configured budget.
-- `LoopDetected` after repeated recursive search suggestions.
-
 Also:
 
 ```bash
 python main.py
 ```
 
-## Smoke: pre-dispatch denial (no provider keys)
+## SDK examples (ordered by user value)
 
-Proves a tiny budget causes **zero** fake-provider calls:
+| Script | What it shows | Evidence tier |
+|--------|----------------|---------------|
+| `examples/02_monitor_fake_provider.py` | Tiny cap → **0** provider calls | hermetic fake |
+| `examples/05_customer_feature_attribution.py` | Two customers, one feature, retry cost difference | hermetic fake + local timeline |
+| `examples/06_streaming_lifecycle.py` | Sync stream settle vs early-close pending | hermetic fake stream |
+| `examples/07_concurrent_reservation.py` | Workers race local reservation authority | local process fixture |
+| `examples/01_local_enforcement.py` | `Enforcement.check_local()` via researcher agent | hermetic |
+| `examples/04_capture_metadata_default.py` | Metadata-default capture (bodies omitted) | hermetic |
+| `examples/03_monitor_multisink_hosted.py` | HttpSink → staging FinOps | hosted opt-in only |
 
 ```bash
-python -m examples.02_monitor_fake_provider
-# or:
 python examples/02_monitor_fake_provider.py
-```
-
-## SDK examples
-
-Certified Control surface:
-
-```python
-from kazenai import monitor, BudgetExceeded
-
-# client = monitor(openai_client, max_budget_usd=0.01, ...)
-```
-
-| Script | What it shows |
-|--------|----------------|
-| `examples/01_local_enforcement.py` | `Enforcement.check_local()` via the researcher agent (no network) |
-| `examples/02_monitor_fake_provider.py` | `monitor()` + fake client; tiny cap → **0** provider calls |
-| `examples/03_monitor_multisink_hosted.py` | HttpSink → staging FinOps; gated by `KAZENAI_DEMO_HOSTED=1` |
-| `examples/04_capture_metadata_default.py` | Metadata-default capture (bodies omitted) |
-
-```bash
+python examples/05_customer_feature_attribution.py
+python examples/06_streaming_lifecycle.py
+python examples/07_concurrent_reservation.py
 python examples/01_local_enforcement.py
-python examples/02_monitor_fake_provider.py
 python examples/04_capture_metadata_default.py
 
 # Hosted only (after staging URLs + API key; never commit credentials):
@@ -91,13 +90,16 @@ export KAZENAI_WORKSPACE_ID=...
 python examples/03_monitor_multisink_hosted.py
 ```
 
-CI runs **pytest scenarios** plus the hermetic monitor smoke. Hosted example 03
-refuses without `KAZENAI_DEMO_HOSTED=1` and is not enabled for live network calls
-in PR CI.
+All default paths are synthetic. Do not treat timeline or console output as customer
+billing, invoice truth, or guaranteed savings.
 
-## Supported surfaces (demo scope)
+## Supported / unsupported boundaries
 
 | Path | Status |
 |------|--------|
 | Sync OpenAI `chat.completions.create` (non-streaming) via `monitor()` | Supported |
-| Streaming / async / Responses / Realtime | Unsupported in this demo |
+| Sync OpenAI `stream=True` / `.stream()` helper | Supported (see example 06) |
+| Sync Anthropic Messages non-streaming + streaming | Supported in Core/FinOps; not required for this demo's default path |
+| Async clients / OpenAI Responses / Realtime / Bedrock / Vertex | Unsupported |
+
+Certified provider SDK ranges: `openai>=1.40,<2`, `anthropic>=0.39,<1`.
