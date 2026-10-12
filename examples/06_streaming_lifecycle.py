@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""06 — Sync OpenAI streaming lifecycle with hermetic fake chunks.
+"""06 — Sync OpenAI streaming lifecycle with offline fake chunks.
 
 Demonstrates:
   reserve maximum exposure -> provider_started -> observe stream
@@ -136,7 +136,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "certified_provider_sdk_range": "openai>=1.40,<2",
+                "supported_provider_sdk_range": "openai>=1.40,<3",
                 "complete": {
                     "chunks_visible_to_caller": len(visible),
                     "terminal_outcome": str(complete_attempt.terminal_outcome),

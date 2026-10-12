@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """11 — Fail-closed vs fail-open (and unknown-model block) posture.
 
-Hermetic fake provider. No keys / no FinOps URL.
+Offline: local fake provider, no keys, no FinOps URL.
 
 Shows three distinct pre-dispatch outcomes:
 1) fail_closed + no FinOps URL → BudgetUnavailable (0 provider calls)
 2) fail_open + KAZENAI_ENV=dev → call allowed under local budget
 3) KAZENAI_UNKNOWN_MODEL_POLICY=block → UnknownModelError (0 provider calls)
 
-Evidence tier: hermetic config fixture.
 Does not prove hosted FinOps HA or production DNS/auth wiring.
 """
 
@@ -136,7 +135,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "hermetic_config_fixture",
+                "runs": "offline",
                 "cases": cases,
                 "proves": (
                     "Fail-closed refuses dispatch when shared FinOps authority is absent "

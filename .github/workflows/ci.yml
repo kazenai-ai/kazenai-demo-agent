@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
 
-      - name: Run hermetic scenarios and smoke
+      - name: Run offline scenarios and smoke
         env:
           OPENAI_API_KEY: ""
           ANTHROPIC_API_KEY: ""
@@ -36,3 +36,40 @@ jobs:
           python examples/02_monitor_fake_provider.py
           python examples/03_monitor_multisink_hosted.py | tee /tmp/hosted-refuse.json || true
           grep -q 'KAZENAI_DEMO_HOSTED' /tmp/hosted-refuse.json
+
+  # Framework examples 14-18 and 20 on KazenAI's pinned framework versions.
+  frameworks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-frameworks.txt
+      - name: Framework examples offline (must not skip)
+        env:
+          PYTHONPATH: .
+        run: |
+          set -o pipefail
+          python -m pytest scenarios/test_framework_examples.py -q -rs -k "not crewai" | tee fw.log
+          if grep -q SKIPPED fw.log; then echo "framework examples skipped"; exit 1; fi
+
+  crewai:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-crewai.txt
+      - name: CrewAI example offline
+        env:
+          PYTHONPATH: .
+          CREWAI_DISABLE_TELEMETRY: "true"
+          OTEL_SDK_DISABLED: "true"
+        run: python -m pytest scenarios/test_framework_examples.py -q -rs -k crewai
+

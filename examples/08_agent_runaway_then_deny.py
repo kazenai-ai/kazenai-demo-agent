@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """08 — Multi-step agent runaway stopped by max_budget_usd (not loop detector).
 
-Hermetic fake provider. No keys.
+Offline: local fake provider, no keys.
 
 Story: a planner schedules many sequential model calls (e.g. "keep solving").
 Control does not guess task difficulty from the prompt. It admits the first
 call under a one-projection cap, settles actual usage, then denies the next
 dispatch with BudgetExceeded — remaining planned steps never hit the provider.
 
-Evidence tier: hermetic fake + local Enforcement.
 Does not prove distributed FinOps reservation or overnight wall-clock jobs.
 """
 
@@ -129,7 +128,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "hermetic_fake",
+                "runs": "offline",
                 "planned_steps": planned_steps,
                 "max_budget_usd": cap,
                 "one_projection_usd": one_projection,

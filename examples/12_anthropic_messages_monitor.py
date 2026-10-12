@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """12 — monitor() on an Anthropic-shaped messages.create client.
 
-Hermetic fake Anthropic surface (no anthropic package / no API key required).
+Offline fake Anthropic surface (no anthropic package / no API key required).
 
 Shows:
 - monitor() detects `.messages.create` and patches the Anthropic path
@@ -9,7 +9,6 @@ Shows:
 - tiny max_budget_usd → BudgetExceeded with 0 provider calls
 - a second run with a normal cap allows one call
 
-Evidence tier: hermetic fake.
 Certified range when using the real SDK: anthropic>=0.39,<1.
 """
 
@@ -76,9 +75,9 @@ def _attempt(*, max_budget_usd: float, label: str) -> Dict[str, Any]:
     error: Optional[str] = None
     try:
         monitored.messages.create(
-            model="claude-3-5-sonnet-20241022",
+            model="claude-sonnet-4-6",
             max_tokens=64,
-            messages=[{"role": "user", "content": f"hermetic anthropic {label}"}],
+            messages=[{"role": "user", "content": f"offline anthropic {label}"}],
         )
         terminal = "allowed"
     except BudgetExceeded as exc:
@@ -113,8 +112,8 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "hermetic_fake",
-                "certified_provider_sdk_range": "anthropic>=0.39,<1",
+                "runs": "offline",
+                "supported_provider_sdk_range": "anthropic>=0.39,<1",
                 "cases": [denied, allowed],
                 "proves": (
                     "The same monitor() entrypoint wraps an Anthropic-shaped "

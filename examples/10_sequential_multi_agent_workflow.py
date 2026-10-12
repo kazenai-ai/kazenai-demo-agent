@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """10 — Sequential multi-agent workflow sharing one budget.
 
-Hermetic fake provider. No keys.
+Offline: local fake provider, no keys.
 
 Story: triage → research → reply agents run in order under one workflow_id
 and shared Enforcement. Budget sized for ~two projections: first two stages
 dispatch, the third is BudgetExceeded before provider dispatch.
 
-Evidence tier: hermetic fake + shared local Enforcement.
 Does not prove distributed FinOps or framework orchestration (LangGraph/Crew).
 """
 
@@ -193,7 +192,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "hermetic_fake",
+                "runs": "offline",
                 "workflow_id": workflow_id,
                 "business_subject_ref": subject,
                 "max_budget_usd": cap,

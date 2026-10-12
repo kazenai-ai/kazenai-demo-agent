@@ -1,6 +1,6 @@
 # kazenai-demo-agent v0.1.1
 
-Public hermetic demo aligned with Core/FinOps **1.1.1**.
+Offline demo aligned with Core/FinOps **1.1.1**.
 
 ## Install
 

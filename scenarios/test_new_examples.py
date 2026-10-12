@@ -1,4 +1,4 @@
-"""Regression checks for FINAL POLISH public examples 05–13."""
+"""Regression checks for examples 05–13."""
 
 from __future__ import annotations
 

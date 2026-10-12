@@ -2,7 +2,7 @@
 """03 — monitor() MultiSink → staging FinOps (+ optional Lens via separate ingest).
 
 Refuses unless KAZENAI_DEMO_HOSTED=1. Fake provider only — no live model keys.
-Personal HOSTED_DEMO; not company staging certification.
+Sends to your own Agent FinOps deployment; output is illustrative.
 """
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from typing import Any
 
 
 def _refuse(msg: str, code: int = 3) -> int:
-    print(json.dumps({"ok": False, "error": msg, "label": "personal_HOSTED_DEMO"}))
+    print(json.dumps({"ok": False, "error": msg, "label": "hosted_example"}))
     return code
 
 
@@ -103,7 +103,7 @@ def main() -> int:
                 "finops": finops,
                 "lens": os.getenv("KAZENAI_LENS_URL") or os.getenv("LENS_URL"),
                 "note": "Events fan out via HttpSink when FinOps URL is set; allow a few seconds then search Lens",
-                "label": "personal_HOSTED_DEMO_not_company_staging_cert",
+                "label": "hosted_example",
             },
             indent=2,
         )

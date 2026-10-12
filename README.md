@@ -1,12 +1,14 @@
 # kazenai-demo-agent
 
-Small, runnable demos for KazenAI **Control** budget and loop enforcement.
+Small, runnable demos for KazenAI **Control** budget and loop enforcement, plus
+copy-ready framework recipes (LangChain, LangGraph, CrewAI, LiteLLM) you can lift
+into your own agent workflows.
 
-**Label honesty:** Hermetic examples use a fake provider. Hosted MultiSink is personal
-HOSTED_DEMO only — not company staging certification, not production savings.
+Every example runs offline by default against a local fake provider, so you
+need no API keys and spend nothing. Output is illustrative — not a bill and not
+a savings claim.
 
-This repository is self-contained. Clone it alone, install from PyPI, and run the
-hermetic path below. No sibling KazenAI checkout is required.
+This repository is self-contained: clone it, install from PyPI, and run.
 
 Docs: [Control demo guide](https://docs.kazenai.com/guides/control-demo/) ·
 Core: [kazenai](https://pypi.org/project/kazenai/) ·
@@ -30,14 +32,14 @@ Expected: `BudgetExceeded` with `provider_calls: 0`.
 
 Public package pins (reproducible demo):
 
-- `kazenai==1.1.1`
-- `kazen-event-schema==0.6.3`
+- `kazenai==1.1.3`
+- `kazen-event-schema==0.6.5`
 
 Dependencies install from public PyPI. This demo does **not** ship offline vendor
 wheels. Prefer bounded provider extras when installing the customer SDK elsewhere:
 
 ```bash
-python -m pip install "kazenai-finops[openai]==1.1.1"
+python -m pip install "kazenai-finops[openai]==1.1.3"
 ```
 
 Report issues: [github.com/kazenai-ai/kazenai-demo-agent/issues](https://github.com/kazenai-ai/kazenai-demo-agent/issues)
@@ -49,7 +51,7 @@ export KAZENAI_DEMO_QUERY="research KazenAI budget enforcement"
 export KAZENAI_DEMO_BUDGET_USD="0.25"
 ```
 
-## Hermetic scenarios (CI)
+## Scenario tests (offline)
 
 ```bash
 python -m pytest scenarios -q
@@ -63,21 +65,21 @@ python main.py
 
 ## SDK examples (ordered by user value)
 
-| Script | What it shows | Evidence tier |
-|--------|----------------|---------------|
-| `examples/02_monitor_fake_provider.py` | Tiny cap → **0** provider calls | hermetic fake |
-| `examples/05_customer_feature_attribution.py` | Two customers, one feature, retry cost difference | hermetic fake + local timeline |
-| `examples/06_streaming_lifecycle.py` | Sync stream settle vs early-close pending | hermetic fake stream |
-| `examples/07_concurrent_reservation.py` | Workers race local reservation authority | local process fixture |
-| `examples/08_agent_runaway_then_deny.py` | Multi-step agent plans many calls; budget stops after one | hermetic fake |
-| `examples/09_agent_fanout_budget_deny.py` | Parent fans out subagents; siblings denied while one holds | local process fixture |
-| `examples/10_sequential_multi_agent_workflow.py` | Triage → research → reply; shared budget stops later stage | hermetic fake |
-| `examples/11_fail_closed_vs_fail_open.py` | Fail-closed / fail-open / unknown-model block postures | hermetic config |
-| `examples/12_anthropic_messages_monitor.py` | Anthropic-shaped `messages.create` via `monitor()` | hermetic fake |
-| `examples/13_soft_pause_vs_hard_budget_deny.py` | Soft `KazenCircuitBreaker` vs hard `BudgetExceeded` | hermetic fake |
-| `examples/01_local_enforcement.py` | `Enforcement.check_local()` via researcher agent | hermetic |
-| `examples/04_capture_metadata_default.py` | Metadata-default capture (bodies omitted) | hermetic |
-| `examples/03_monitor_multisink_hosted.py` | HttpSink → staging FinOps | hosted opt-in only |
+| Script | What it shows | Runs |
+|--------|----------------|------|
+| `examples/02_monitor_fake_provider.py` | Tiny cap → **0** provider calls | offline |
+| `examples/05_customer_feature_attribution.py` | Two customers, one feature, retry cost difference | offline, writes a local timeline |
+| `examples/06_streaming_lifecycle.py` | Sync stream settle vs early-close pending | offline |
+| `examples/07_concurrent_reservation.py` | Workers race local reservation authority | offline, several local workers |
+| `examples/08_agent_runaway_then_deny.py` | Multi-step agent plans many calls; budget stops after one | offline |
+| `examples/09_agent_fanout_budget_deny.py` | Parent fans out subagents; siblings denied while one holds | offline, several local workers |
+| `examples/10_sequential_multi_agent_workflow.py` | Triage → research → reply; shared budget stops later stage | offline |
+| `examples/11_fail_closed_vs_fail_open.py` | Fail-closed / fail-open / unknown-model block postures | offline |
+| `examples/12_anthropic_messages_monitor.py` | Anthropic-shaped `messages.create` via `monitor()` | offline |
+| `examples/13_soft_pause_vs_hard_budget_deny.py` | Soft `KazenCircuitBreaker` vs hard `BudgetExceeded` | offline |
+| `examples/01_local_enforcement.py` | `Enforcement.check_local()` via researcher agent | offline |
+| `examples/04_capture_metadata_default.py` | Metadata-default capture (bodies omitted) | offline |
+| `examples/03_monitor_multisink_hosted.py` | HttpSink → your Agent FinOps | needs your Agent FinOps |
 
 ```bash
 python examples/02_monitor_fake_provider.py
@@ -105,13 +107,86 @@ python examples/03_monitor_multisink_hosted.py
 All default paths are synthetic. Do not treat timeline or console output as customer
 billing, invoice truth, or guaranteed savings.
 
+## Framework recipes (examples 14–20)
+
+These show how to put KazenAI around the frameworks you already use. Each one
+runs **offline by default** (a local fake provider, no keys, no cost) and against
+the real providers with `--live`.
+
+```bash
+python -m pip install -r requirements-frameworks.txt   # LangChain, LangGraph, OpenAI, Anthropic
+python examples/16_langchain_multi_model_chain.py       # offline
+python examples/16_langchain_multi_model_chain.py --live  # real calls (needs keys)
+```
+
+CrewAI pins its own dependencies, so give it a separate virtualenv:
+
+```bash
+python3.11 -m venv .venv-crew && source .venv-crew/bin/activate
+python -m pip install -r requirements-crewai.txt
+python examples/19_crewai_crew.py
+```
+
+| Script | Framework | Pattern you can copy |
+|--------|-----------|----------------------|
+| `examples/14_shared_budget_two_providers.py` | plain SDKs | One `SharedBudget` across an OpenAI and an Anthropic client |
+| `examples/15_langchain_chat_models.py` | LangChain | `ChatOpenAI` / `ChatAnthropic` bound to monitored clients: `invoke`, `stream`, `ainvoke`, `with_structured_output` |
+| `examples/16_langchain_multi_model_chain.py` | LangChain LCEL | A two-model chain (plan on OpenAI, reply on Anthropic) on one budget; declare the chain's Control boundary |
+| `examples/17_langgraph_multi_provider_workflow.py` | LangGraph | plan → draft → review on three models / two providers; per-step spend; the step that would overspend is refused |
+| `examples/18_langgraph_approval_checkpoint.py` | LangGraph | Human approval with `interrupt_before` + SQLite checkpoint; resume after a restart without re-charging finished steps |
+| `examples/19_crewai_crew.py` | CrewAI | Two-agent crew on two providers, one budget, via `bind_crew_llm_client` (preview; see the script) |
+| `examples/20_litellm_proxy.py` | LiteLLM proxy | `monitor()` around an OpenAI client pointed at the proxy; priced per requested model |
+
+The three lines that matter in every recipe:
+
+```python
+from kazenai import SharedBudget, BudgetExceeded
+from kazenai.integrations.langchain import bind_monitored_chat_openai
+
+budget = SharedBudget(max_usd=0.50, name="support-workflow")      # one budget for the workflow
+bind_monitored_chat_openai(llm, OpenAI(), async_client=AsyncOpenAI(),
+                           budget=budget, workflow_id="support", feature_id="reply")
+# ... run your chain / graph / crew; the call that would overspend raises BudgetExceeded
+# before it reaches the provider.
+```
+
+`SharedBudget` is in-process. To share one budget across processes, hosts or
+restarts, use Agent FinOps and set a `workflow_id` (or customer / feature) limit
+there; the binding code stays the same.
+
+### Running with `--live`
+
+`--live` (or `KAZENAI_DEMO_LIVE=1`) uses `OPENAI_API_KEY` and `ANTHROPIC_API_KEY`
+from your environment. Each recipe uses a budget of a few cents or less, and the
+point of every recipe is that the budget stops it. Use keys with a low spend cap.
+Models default to `gpt-4o-mini` and `claude-haiku-4-5`; override them with
+`KAZENAI_DEMO_OPENAI_MODEL` and `KAZENAI_DEMO_ANTHROPIC_MODEL` (the model must be
+in KazenAI's price table; unpriced models are refused). Example 20 also needs a
+running LiteLLM proxy: `KAZENAI_DEMO_LITELLM_URL` and `KAZENAI_DEMO_LITELLM_KEY`.
+
+### Tips that save you a debugging session
+
+- **Bind every model.** A graph or chain declares every guarded client its steps
+  use (`declare_langgraph_control_boundary(graph, *clients)`); `wrap_graph` refuses
+  to run a Control graph with a missing or unrelated client.
+- **Turn off framework retries for refusals.** CrewAI: `max_retry_limit=0`.
+  Otherwise the framework retries the refused call and KazenAI's loop guard trips
+  instead of a clear `BudgetExceeded`.
+- **Turn off proxy retries/fallbacks** (`num_retries: 0` in LiteLLM) so one app
+  call is one provider attempt.
+- The recipes set `soft_pause_pct=100.0` so the demo reaches the hard budget
+  stop; in production, leave the default to get an early soft pause.
+
 ## Supported / unsupported boundaries
 
 | Path | Status |
 |------|--------|
-| Sync OpenAI `chat.completions.create` (non-streaming) via `monitor()` | Supported |
-| Sync OpenAI `stream=True` / `.stream()` helper | Supported (see example 06) |
-| Sync Anthropic Messages non-streaming + streaming | Supported in Core/FinOps; not required for this demo's default path |
-| Async clients / OpenAI Responses / Realtime / Bedrock / Vertex | Unsupported |
+| OpenAI Chat Completions sync/async, streaming and not, incl. `.parse()` structured output | Supported, live-verified |
+| Anthropic Messages sync/async, streaming and not | Supported, live-verified |
+| LangChain `ChatOpenAI` / `ChatAnthropic` (bound), LangGraph graphs | Supported, live-verified |
+| LiteLLM proxy (application-owned or gateway-owned accounting) | Supported, live-verified |
+| CrewAI native LLMs | Preview (example 19); not yet a supported path |
+| OpenAI Responses / Realtime, Anthropic `beta.messages`, Bedrock / Vertex wrappers | Unsupported (refused under Control) |
 
-Certified provider SDK ranges: `openai>=1.40,<2`, `anthropic>=0.39,<1`.
+Provider SDK ranges: `openai>=1.40,<3`, `anthropic>=0.39,<1`. Framework pins are in
+`requirements-frameworks.txt` and `requirements-crewai.txt`.

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """07 — Concurrent workers racing a shared local max_budget_usd authority.
 
-Evidence tier: local process integration fixture (thread-safe Enforcement),
 NOT distributed multi-host concurrency proof.
 
 While one call holds projected spend inside the provider, sibling workers must
@@ -115,7 +114,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "local_process_integration_fixture",
+                "runs": "offline, several local workers",
                 "provider_calls": client.chat.completions.calls,
                 "allowed": allowed,
                 "denied_budget_exceeded": denied,

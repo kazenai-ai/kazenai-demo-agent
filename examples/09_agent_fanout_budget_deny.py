@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """09 — Parent agent fans out subagents; shared budget catches oversubscription.
 
-Hermetic fake provider. No keys.
+Offline: local fake provider, no keys.
 
 Story: one parent task launches N parallel subagents that share a single
 process-local max_budget_usd. While the first subagent holds projected spend
 inside the provider, siblings are denied with BudgetExceeded before dispatch.
 
-Evidence tier: local process integration fixture (thread-safe Enforcement).
 Does NOT prove distributed / multi-host cluster budget authority.
 """
 
@@ -143,7 +142,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "local_process_integration_fixture",
+                "runs": "offline, several local workers",
                 "parent_agent_id": "demo-parent-fanout",
                 "fanout_subagents": fanout,
                 "max_budget_usd": projected * 1.1,

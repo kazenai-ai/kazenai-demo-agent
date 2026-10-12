@@ -18,4 +18,4 @@ labels: ["bug"]
 
 ## Steps
 
-Prefer the hermetic no-key path. Do not paste credentials or customer data.
+Prefer the offline, no-key path. Do not paste credentials or customer data.

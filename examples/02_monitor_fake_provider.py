@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """02 — monitor() + fake OpenAI client; tiny max_budget_usd → 0 provider calls.
 
-Control-certified surface (FINAL_1): sync chat.completions via kazenai.monitor.
+Supported surface: sync chat.completions via kazenai.monitor.
 No paid I/O. D3 story: BudgetExceeded before the first provider dispatch.
 """
 
@@ -31,7 +31,7 @@ class FakeOpenAI:
 
 
 def main() -> int:
-    # Clear remote ingest so this stays hermetic.
+    # Clear remote ingest so this stays offline.
     for key in (
         "KAZENAI_FINOPS_URL",
         "KAZENAI_FINOPS_INGEST_URL",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """01 — Local Enforcement only (no network, no monitor).
 
-Hermetic demo of BudgetExceeded / LoopDetected using check_local().
+Offline demo of BudgetExceeded / LoopDetected using check_local().
 """
 
 from __future__ import annotations

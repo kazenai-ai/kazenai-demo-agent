@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """05 — Customer/feature attribution across normal and expensive retry paths.
 
-Hermetic fake provider. No keys.
+Offline: local fake provider, no keys.
 
 Proves:
 - monitor() kwargs / use_attribution ContextVars are visible at call time

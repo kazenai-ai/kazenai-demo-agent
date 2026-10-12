@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """13 — Soft KazenCircuitBreaker vs hard BudgetExceeded.
 
-Hermetic fake provider. No keys.
+Offline: local fake provider, no keys.
 
 Shows two different failure modes developers often confuse:
 1) Soft trajectory pause → KazenCircuitBreaker AFTER a provider call completes
 2) Hard local cap → BudgetExceeded BEFORE provider dispatch (0 calls)
 
-Evidence tier: hermetic fake.
 """
 
 from __future__ import annotations
@@ -149,7 +148,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": ok,
-                "evidence_tier": "hermetic_fake",
+                "runs": "offline",
                 "cases": [soft, hard],
                 "proves": (
                     "KazenCircuitBreaker is a soft post-call trajectory pause; "
