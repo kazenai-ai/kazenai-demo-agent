@@ -18,7 +18,7 @@ You should receive an acknowledgement within a few business days.
 ## Scope
 
 This repository contains offline and optional hosted demos for KazenAI Control.
-It is not a production service. Hosted FinOps/Lens environments are separate
+It is not a production service. Hosted Agent FinOps environments are separate
 products with separate terms.
 
 ## Capture defaults
