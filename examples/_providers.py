@@ -197,6 +197,52 @@ def anthropic_clients(reply: Optional[Reply] = None, calls: Optional[list] = Non
     )
 
 
+def recorded_model_cost_usd(model: str, *, input_tokens: int, output_tokens: int, client: Any) -> float:
+    """Catalog price of one call, including the non-first-party endpoint uplift.
+
+    ``model_cost_usd_per_million`` is the list price. A client whose host is not
+    that provider's first-party API is charged the catalog uplift (1.1x), which
+    is what ``SharedBudget.spent_usd`` records. ``--live`` first-party hosts
+    stay at list price.
+    """
+    from decimal import Decimal
+    from urllib.parse import urlsplit
+
+    from kazenai.model_pricing import model_cost_usd_per_million
+    from kazenai.price_catalog import (
+        FIRST_PARTY_API_HOSTS,
+        NON_FIRST_PARTY_UPLIFT,
+        canonical_model_id,
+        cost_micro_usd,
+        lookup_row,
+        micro_usd_to_decimal,
+        provider_for_model,
+    )
+
+    base = model_cost_usd_per_million(model, input_tokens=input_tokens, output_tokens=output_tokens)
+    if not base:
+        return 0.0
+    canonical = canonical_model_id(model).strip().lower()
+    provider = provider_for_model(canonical) or "openai"
+    raw = getattr(client, "base_url", None)
+    host = ""
+    if raw is not None:
+        host = str(getattr(raw, "host", None) or urlsplit(str(raw)).hostname or "").strip().lower()
+    first_party = FIRST_PARTY_API_HOSTS.get(provider, ())
+    factor = NON_FIRST_PARTY_UPLIFT if host and first_party and host not in first_party else Decimal("1")
+    if factor == 1:
+        return float(base)
+    row = lookup_row(provider, canonical, "standard", "short")
+    if row is None:
+        return float(Decimal(str(base)) * factor)
+    micros = cost_micro_usd(
+        row.rates.scaled(factor),
+        input_tokens=max(0, int(input_tokens)),
+        output_tokens=max(0, int(output_tokens)),
+    )
+    return float(micro_usd_to_decimal(micros))
+
+
 def report(result: Dict[str, Any]) -> int:
     """Print the example's result as JSON and return its exit code."""
     result.setdefault("mode", "live" if live_mode() else "offline (fake provider transport)")

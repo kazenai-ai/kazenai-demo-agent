@@ -14,8 +14,8 @@ Keep the proxy's own retries and fallbacks off (`num_retries: 0`) so one app
 call is one provider attempt.
 
 Gateway-owned accounting is the alternative when apps can't be changed: load
-`kazenai_litellm_callback.proxy_handler_instance` as a LiteLLM callback (see
-kazenai-examples/litellm-otel-control) and set `KAZENAI_ENFORCEMENT_OWNER=gateway`
+`kazenai.integrations.litellm_gateway.proxy_handler_instance` as a LiteLLM
+callback and set `KAZENAI_ENFORCEMENT_OWNER=gateway`
 in the proxy; apps then send `metadata={"kazenai_operation_id": ...}` and must
 not reserve again. Both modes are live-verified with Agent FinOps.
 
@@ -27,13 +27,22 @@ from __future__ import annotations
 
 import os
 
-from _providers import TICKETS, anthropic_model, live_mode, local_only_env, openai_clients, openai_model, report
+from _providers import (
+    TICKETS,
+    anthropic_model,
+    live_mode,
+    local_only_env,
+    openai_clients,
+    openai_model,
+    recorded_model_cost_usd,
+    report,
+)
 
 
 def main() -> int:
     local_only_env()
     from kazenai import BudgetExceeded, SharedBudget, monitor
-    from kazenai.model_pricing import model_cost_usd_per_million, output_limit_param
+    from kazenai.model_pricing import output_limit_param
 
     if live_mode():
         url, key = os.getenv("KAZENAI_DEMO_LITELLM_URL", ""), os.getenv("KAZENAI_DEMO_LITELLM_KEY", "")
@@ -69,7 +78,10 @@ def main() -> int:
             denied_at = {"ticket": number, "model": model, "reason": str(exc)}
             break
 
-    expected = sum(model_cost_usd_per_million(m, input_tokens=i, output_tokens=o) for m, i, o in used)
+    expected = sum(
+        recorded_model_cost_usd(m, input_tokens=i, output_tokens=o, client=proxy)
+        for m, i, o in used
+    )
     return report({
         "ok": denied_at is not None and len(used) >= 2 and abs(budget.spent_usd - expected) < 1e-9,
         "calls": [{"model": m, "input_tokens": i, "output_tokens": o} for m, i, o in used],

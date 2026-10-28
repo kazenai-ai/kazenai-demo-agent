@@ -17,13 +17,21 @@ Runs offline by default; `--live` uses your real OpenAI and Anthropic keys.
 
 from __future__ import annotations
 
-from _providers import TICKETS, anthropic_clients, anthropic_model, local_only_env, openai_clients, openai_model, report
+from _providers import (
+    TICKETS,
+    anthropic_clients,
+    anthropic_model,
+    local_only_env,
+    openai_clients,
+    openai_model,
+    recorded_model_cost_usd,
+    report,
+)
 
 
 def main() -> int:
     local_only_env()
     from kazenai import BudgetExceeded, SharedBudget, monitor
-    from kazenai.model_pricing import model_cost_usd_per_million
 
     openai_raw, _ = openai_clients()
     anthropic_raw, _ = anthropic_clients()
@@ -53,7 +61,13 @@ def main() -> int:
             denied_at = {"ticket": ticket, "step": "plan" if len(calls) % 2 == 0 else "write", "reason": str(exc)}
             break
 
-    expected = sum(model_cost_usd_per_million(m, input_tokens=i, output_tokens=o) for _, m, i, o in calls)
+    expected = sum(
+        recorded_model_cost_usd(
+            m, input_tokens=i, output_tokens=o,
+            client=openai_raw if step == "plan" else anthropic_raw,
+        )
+        for step, m, i, o in calls
+    )
     return report({
         "ok": denied_at is not None and len(calls) >= 2 and budget.spent_usd <= budget.max_usd
         and abs(budget.spent_usd - expected) < 1e-9,

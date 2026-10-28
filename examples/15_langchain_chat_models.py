@@ -21,7 +21,16 @@ import asyncio
 
 from pydantic import BaseModel
 
-from _providers import TICKETS, anthropic_clients, anthropic_model, local_only_env, openai_clients, openai_model, report
+from _providers import (
+    TICKETS,
+    anthropic_clients,
+    anthropic_model,
+    local_only_env,
+    openai_clients,
+    openai_model,
+    recorded_model_cost_usd,
+    report,
+)
 
 
 class Triage(BaseModel):
@@ -46,8 +55,6 @@ def main() -> int:
         bind_monitored_chat_openai,
         wrap_langchain_runnable,
     )
-    from kazenai.model_pricing import model_cost_usd_per_million
-
     oa_sync, oa_async = openai_clients(reply=_offline_reply)
     an_sync, an_async = anthropic_clients()
 
@@ -83,7 +90,13 @@ def main() -> int:
     structured = gpt.with_structured_output(Triage, include_raw=True).invoke(f"Triage this ticket: {TICKETS[3]}")
     track(openai_model(), structured["raw"])
 
-    expected = sum(model_cost_usd_per_million(m, input_tokens=i, output_tokens=o) for m, i, o in used)
+    expected = sum(
+        recorded_model_cost_usd(
+            m, input_tokens=i, output_tokens=o,
+            client=oa_sync if m == openai_model() else an_sync,
+        )
+        for m, i, o in used
+    )
 
     # 5. a model bound to an exhausted budget never reaches the provider
     tiny = SharedBudget(max_usd=0.000001)
