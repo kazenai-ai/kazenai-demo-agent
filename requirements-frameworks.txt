@@ -1,7 +1,7 @@
 # Examples 14-18 and 20: plain SDK, LangChain, LangGraph, LiteLLM-proxy pattern.
 -r requirements.txt
 # KazenAI's pinned, CI-tested framework versions come with these extras.
-kazenai[openai,anthropic,langchain,langgraph]==1.1.3
+kazenai[openai,anthropic,langchain,langgraph]==1.2.0
 # Provider SDKs verified live with KazenAI 1.1.2+ (anthropic 1.x is outside the supported range).
 openai==2.54.0
 anthropic==0.125.0

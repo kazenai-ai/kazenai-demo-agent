@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""03 — monitor() MultiSink → staging FinOps (+ optional Lens via separate ingest).
+"""03 — monitor() MultiSink → hosted Agent FinOps (+ optional run-receipts ingest).
 
 Refuses unless KAZENAI_DEMO_HOSTED=1. Fake provider only — no live model keys.
 Sends to your own Agent FinOps deployment; output is illustrative.
@@ -39,7 +39,7 @@ class FakeOpenAI:
 
 def main() -> int:
     if os.getenv("KAZENAI_DEMO_HOSTED", "").strip().lower() not in {"1", "true", "yes"}:
-        return _refuse("Set KAZENAI_DEMO_HOSTED=1 after staging URLs + API key are configured")
+        return _refuse("Set KAZENAI_DEMO_HOSTED=1 after your Agent FinOps URL and API key are configured")
 
     finops = (
         os.getenv("KAZENAI_FINOPS_INGEST_URL")
@@ -86,7 +86,7 @@ def main() -> int:
                     "provider_calls": client.chat.completions.calls,
                     "error": str(exc),
                     "finops": finops,
-                    "note": "Open FinOps /ui/ and Lens with your org scope after sink flush",
+                    "note": "Open FinOps /ui/ Run receipts with your org scope after sink flush",
                 },
                 indent=2,
             )
@@ -102,7 +102,7 @@ def main() -> int:
                 "provider_calls": client.chat.completions.calls,
                 "finops": finops,
                 "lens": os.getenv("KAZENAI_LENS_URL") or os.getenv("LENS_URL"),
-                "note": "Events fan out via HttpSink when FinOps URL is set; allow a few seconds then search Lens",
+                "note": "Events fan out via HttpSink when FinOps URL is set; allow a few seconds then open Run receipts",
                 "label": "hosted_example",
             },
             indent=2,

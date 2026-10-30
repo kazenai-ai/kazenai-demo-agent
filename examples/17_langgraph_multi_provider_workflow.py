@@ -21,7 +21,16 @@ from __future__ import annotations
 
 from typing import TypedDict
 
-from _providers import TICKETS, anthropic_clients, anthropic_model, local_only_env, openai_clients, openai_model, report
+from _providers import (
+    TICKETS,
+    anthropic_clients,
+    anthropic_model,
+    local_only_env,
+    openai_clients,
+    openai_model,
+    recorded_model_cost_usd,
+    report,
+)
 
 
 class Ticket(TypedDict, total=False):
@@ -44,8 +53,6 @@ def main() -> int:
         bound_guarded_client,
     )
     from kazenai.integrations.langgraph import declare_langgraph_control_boundary, wrap_graph
-    from kazenai.model_pricing import model_cost_usd_per_million
-
     # --- the KazenAI part: bind each step's model to one shared budget ----
     budget = SharedBudget(max_usd=0.008, name="ticket-graph")
     common = dict(budget=budget, soft_pause_pct=100.0, workflow_id="ticket-graph")
@@ -66,8 +73,9 @@ def main() -> int:
 
     def charge(step: str, model: str, message) -> str:
         meta = message.usage_metadata
-        spend_by_step[step] += model_cost_usd_per_million(
-            model, input_tokens=meta["input_tokens"], output_tokens=meta["output_tokens"]
+        spend_by_step[step] += recorded_model_cost_usd(
+            model, input_tokens=meta["input_tokens"], output_tokens=meta["output_tokens"],
+            client=oa_sync if model == openai_model() else an_sync,
         )
         return str(message.content)
 

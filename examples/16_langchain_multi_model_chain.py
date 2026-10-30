@@ -22,7 +22,16 @@ Runs offline by default; `--live` uses your real keys.
 
 from __future__ import annotations
 
-from _providers import TICKETS, anthropic_clients, anthropic_model, local_only_env, openai_clients, openai_model, report
+from _providers import (
+    TICKETS,
+    anthropic_clients,
+    anthropic_model,
+    local_only_env,
+    openai_clients,
+    openai_model,
+    recorded_model_cost_usd,
+    report,
+)
 
 
 def main() -> int:
@@ -42,8 +51,6 @@ def main() -> int:
         declare_langchain_control_boundary,
         wrap_langchain_runnable,
     )
-    from kazenai.model_pricing import model_cost_usd_per_million
-
     oa_sync, oa_async = openai_clients()
     an_sync, an_async = anthropic_clients()
 
@@ -83,7 +90,11 @@ def main() -> int:
     for model_name, meta in usage.usage_metadata.items():
         model = openai_model() if model_name.startswith(openai_model()) else anthropic_model()
         per_model[model_name] = round(
-            model_cost_usd_per_million(model, input_tokens=meta["input_tokens"], output_tokens=meta["output_tokens"]), 6
+            recorded_model_cost_usd(
+                model, input_tokens=meta["input_tokens"], output_tokens=meta["output_tokens"],
+                client=oa_sync if model == openai_model() else an_sync,
+            ),
+            6,
         )
     expected = sum(per_model.values())
 
